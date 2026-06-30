@@ -24,16 +24,24 @@ button,input,textarea{font-family:inherit;}
 /* ── 상단 능력치 바 ── */
 .stat-bar{position:sticky;top:0;z-index:101;background:#1e1b4b;padding:6px 16px;display:none;}
 .stat-bar.show{display:block;}
-.stat-bar-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:16px;}
-.stat-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.75);white-space:nowrap;}
+.stat-bar-inner{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:5px;}
+.stat-row{display:flex;align-items:center;gap:12px;width:100%;}
+.stat-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.75);white-space:nowrap;min-width:52px;}
 .stat-track{flex:1;max-width:260px;height:7px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;}
 .stat-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#a78bfa,#7c3aed);transition:width .4s cubic-bezier(.34,1.56,.64,1);}
 .stat-val{font-size:13px;font-weight:900;color:#fff;min-width:28px;}
 .stat-progress{font-size:11px;color:rgba(255,255,255,.55);margin-left:auto;white-space:nowrap;}
+/* 신중력 배지 줄 */
+.care-badges{display:flex;gap:6px;flex:1;flex-wrap:nowrap;}
+.care-badge{font-size:13px;width:23px;height:23px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);filter:grayscale(1);opacity:.38;transition:all .3s;cursor:default;}
+.care-badge.earned{filter:none;opacity:1;background:rgba(167,139,250,.22);border-color:rgba(167,139,250,.7);}
+.care-badge.pop{animation:badgePop .55s cubic-bezier(.34,1.56,.64,1);}
+@keyframes badgePop{0%{transform:scale(.4);}55%{transform:scale(1.35);}100%{transform:scale(1);}}
+.care-count{font-size:11px;font-weight:900;color:#c4b5fd;min-width:28px;text-align:right;}
 
 /* ── 검색 상단바 ── */
 .topbar{background:var(--brand);position:sticky;top:0;z-index:100;}
-.stat-bar.show ~ .topbar, .stat-bar.show + .topbar{top:38px;}
+.stat-bar.show ~ .topbar, .stat-bar.show + .topbar{top:64px;}
 .topbar-inner{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1060px;margin:0 auto;}
 .brand-logo{font-size:15px;font-weight:900;color:#fff;white-space:nowrap;letter-spacing:-.3px;background:rgba(255,255,255,.18);border-radius:8px;padding:5px 10px;}
 .searchbox{flex:1;max-width:520px;background:#fff;border-radius:22px;display:flex;align-items:center;padding:0 14px;height:38px;gap:8px;box-shadow:0 1px 6px rgba(0,0,0,.12);}
@@ -94,8 +102,8 @@ button,input,textarea{font-family:inherit;}
 }
 /* 가로 태블릿: 패널 더 넓게 */
 @media(orientation:landscape)and(min-width:600px){
-  .act-wrap{max-height:72vh;}
-  .main-wrap{padding-bottom:200px;}
+  .act-wrap{max-height:50vh;}
+  .main-wrap{padding-bottom:54vh;}
 }
 /* 스크롤 힌트 그라데이션 — 내용이 더 있음을 암시 */
 .act-wrap::after{content:'';display:block;height:1px;}
@@ -135,7 +143,7 @@ button,input,textarea{font-family:inherit;}
 .inline-src-tag.read::before{content:'✔ ';}
 
 /* 드롭다운 원문 패널 */
-.src-dropdown{display:none;margin:8px 0 4px;border:1.5px solid var(--blue-mid);border-radius:var(--radius-sm);background:var(--blue-soft);overflow:hidden;}
+.src-dropdown{display:none;margin:8px 0 4px;border:1.5px solid var(--blue-mid);border-radius:var(--radius-sm);background:var(--blue-soft);overflow:hidden;scroll-margin-top:132px;}
 .src-dropdown.open{display:block;}
 .src-dropdown-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blue-soft);border-bottom:1px solid var(--blue-mid);}
 .src-dropdown-tag{font-size:11px;font-weight:800;}
@@ -276,6 +284,9 @@ button,input,textarea{font-family:inherit;}
 .title-stat{background:rgba(255,255,255,.12);border-radius:10px;padding:8px 14px;text-align:center;}
 .title-stat-lbl{font-size:10px;opacity:.7;font-weight:700;margin-bottom:2px;}
 .title-stat-val{font-size:18px;font-weight:900;}
+.title-badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:11px;}
+.title-badge{font-size:11px;font-weight:800;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+.title-badge.locked{opacity:.32;}
 
 .promise-box{background:linear-gradient(135deg,var(--blue-soft),#f0f9ff);border:1.5px solid var(--blue-mid);border-radius:var(--radius);padding:11px 13px;margin-top:9px;}
 .pb-ttl{font-weight:900;font-size:13px;color:var(--brand);margin-bottom:4px;}
@@ -429,10 +440,17 @@ button,input,textarea{font-family:inherit;}
 <!-- 능력치 바 -->
 <div class="stat-bar" id="statBar">
   <div class="stat-bar-inner">
-    <span class="stat-label">🔍 탐정력</span>
-    <div class="stat-track"><div class="stat-fill" id="detFill" style="width:0%"></div></div>
-    <span class="stat-val" id="detVal">0</span>
-    <span class="stat-progress" id="statProg">0/5 문장</span>
+    <div class="stat-row">
+      <span class="stat-label">🔍 탐정력</span>
+      <div class="stat-track"><div class="stat-fill" id="detFill" style="width:0%"></div></div>
+      <span class="stat-val" id="detVal">0</span>
+      <span class="stat-progress" id="statProg">0/5 문장</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">🎖️ 신중력</span>
+      <div class="care-badges" id="careBadges"></div>
+      <span class="care-count" id="careCount">0/5</span>
+    </div>
   </div>
 </div>
 
@@ -501,11 +519,11 @@ button,input,textarea{font-family:inherit;}
       <div class="ai-body">
         <p>문어는 지구에서 가장 똑똑한 동물 중 하나로 알려져 있어요.</p>
         <p>
-          <span class="hl" id="hl-s1" onclick="clickHL('s1')">문어는 원숭이만큼 똑똑하다는 실험 결과가 있다고 해요.</span>
-          <span class="hl" id="hl-s2" onclick="clickHL('s2')">문어의 뇌 세포는 강아지보다 훨씬 많다고 알려져 있어요.<button class="inline-src-tag b-news" id="srctag-s2" onclick="event.stopPropagation();openSrcTag('s2')" title="뉴스 출처 보기">뉴스↗</button></span>
-          <span class="hl" id="hl-s3" onclick="clickHL('s3')">문어는 도구를 쓰고, 미로를 혼자 풀고, 저마다 다른 성격도 있다고 해요.<button class="inline-src-tag b-gov" id="srctag-s3" onclick="event.stopPropagation();openSrcTag('s3')" title="국립기관 출처 보기">국립기관↗</button></span>
-          <span class="hl" id="hl-s4" onclick="clickHL('s4')">문어는 잠을 자면서 피부 색깔이 바뀌는데, 꿈을 꾸기 때문이라고 해요.<button class="inline-src-tag b-news" id="srctag-s4" onclick="event.stopPropagation();openSrcTag('s4')" title="뉴스 출처 보기">뉴스↗</button></span>
-          <span class="hl" id="hl-s5" onclick="clickHL('s5')">문어는 팔이 8개인데, 각각의 팔이 스스로 움직임을 결정할 수 있다고 해요.<button class="inline-src-tag b-edu" id="srctag-s5" onclick="event.stopPropagation();openSrcTag('s5')" title="학술자료 출처 보기">학술자료↗</button></span>
+          <span class="hl" id="hl-s1" >문어는 원숭이만큼 똑똑하다는 실험 결과가 있다고 해요.</span>
+          <span class="hl" id="hl-s2" >문어의 뇌 세포는 강아지보다 훨씬 많다고 알려져 있어요.<button class="inline-src-tag b-news" id="srctag-s2" onclick="event.stopPropagation();openSrcTag('s2')" title="뉴스 출처 보기">뉴스↗</button></span>
+          <span class="hl" id="hl-s3" >문어는 도구를 쓰고, 미로를 혼자 풀고, 저마다 다른 성격도 있다고 해요.<button class="inline-src-tag b-gov" id="srctag-s3" onclick="event.stopPropagation();openSrcTag('s3')" title="국립기관 출처 보기">국립기관↗</button></span>
+          <span class="hl" id="hl-s4" >문어는 잠을 자면서 피부 색깔이 바뀌는데, 꿈을 꾸기 때문이라고 해요.<button class="inline-src-tag b-news" id="srctag-s4" onclick="event.stopPropagation();openSrcTag('s4')" title="뉴스 출처 보기">뉴스↗</button></span>
+          <span class="hl" id="hl-s5" >문어는 팔이 8개인데, 각각의 팔이 스스로 움직임을 결정할 수 있다고 해요.<button class="inline-src-tag b-edu" id="srctag-s5" onclick="event.stopPropagation();openSrcTag('s5')" title="학술자료 출처 보기">학술자료↗</button></span>
         </p>
         <!-- 드롭다운 원문 패널 (공유 1개) -->
         <div class="src-dropdown" id="srcDropdown">
@@ -578,7 +596,7 @@ button,input,textarea{font-family:inherit;}
     <div class="hint-box" id="hintBox">
       <div class="hint-box-ttl">💡 힌트</div>
       <div class="hint-box-txt" id="hintTxt"></div>
-      <button class="retry-btn" id="retryBtn" onclick="retryChoice()">다시 선택해볼게요 →</button>
+      <button class="retry-btn" id="retryBtn">다시 선택해볼게요 →</button>
     </div>
     <div class="fb" id="fb1"></div>
     <div id="fixArea" style="display:none;"></div>
@@ -848,8 +866,46 @@ const ORDER=['s1','s2','s3','s4','s5'];
 const TOTAL=5;
 
 // ── 능력치 ──
-let STAT={det:0};
+// 탐정력(det): 판단의 정확도. 문장을 맞히면 +20 (첫 시도/재시도 동일 — 다시 생각하는 걸 벌하지 않음)
+// 신중력(care): 투명성 행동(배지). 출처 확인·재검토·문장 수리·신중한 보류·끝까지 확인
+let STAT={det:0,care:{}};
 const DET_MAX=100;
+const DET_PER=20; // 문장당 점수 (5문장 × 20 = 100)
+
+// 신중력 배지 정의 (순서 = 화면 표시 순서)
+const BADGES={
+  src:   {emoji:'🔎',name:'출처 탐험가',desc:'출처 원문을 끝까지 확인했어요'},
+  retry: {emoji:'🔁',name:'다시 생각러',desc:'틀린 뒤 다시 읽고 스스로 바로잡았어요'},
+  fix:   {emoji:'✏️',name:'문장 수리공',desc:'과장된 AI 문장을 더 정확하게 고쳐 썼어요'},
+  hold:  {emoji:'⚖️',name:'신중한 판정관',desc:'애매한 문장을 보류로 신중하게 판정했어요'},
+  finish:{emoji:'🧭',name:'끝까지 확인',desc:'5개 문장을 끝까지 확인했어요'},
+};
+
+function careCount(){return STAT.care?Object.keys(BADGES).filter(k=>STAT.care[k]).length:0;}
+
+function earnBadge(id){
+  if(!STAT.care) STAT.care={};
+  if(STAT.care[id]||!BADGES[id]) return;
+  STAT.care[id]=true;
+  renderCareBadges(id);
+  updateStatBar();
+  showStatChip(`${BADGES[id].emoji} 신중력 배지: ${BADGES[id].name}`);
+}
+
+function renderCareBadges(animId){
+  const wrap=qs('#careBadges');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  Object.keys(BADGES).forEach(id=>{
+    const b=BADGES[id];
+    const earned=STAT.care&&STAT.care[id];
+    const el=document.createElement('div');
+    el.className='care-badge'+(earned?' earned':'')+(animId===id?' pop':'');
+    el.textContent=b.emoji;
+    el.title=`${b.name} — ${b.desc}`;
+    wrap.appendChild(el);
+  });
+}
 
 function gainStat(det,msg){
   STAT.det=Math.min(DET_MAX,STAT.det+det);
@@ -861,6 +917,8 @@ function updateStatBar(){
   qs('#detVal').textContent=STAT.det;
   const done=Object.keys(S.answers).filter(k=>S.answers[k]).length;
   qs('#statProg').textContent=`${done}/5 문장`;
+  const cc=qs('#careCount');if(cc)cc.textContent=`${careCount()}/5`;
+  renderCareBadges();
 }
 function showStatChip(msg){
   const popup=qs('#statPopup');
@@ -871,13 +929,14 @@ function showStatChip(msg){
   setTimeout(()=>{chip.classList.remove('show');setTimeout(()=>chip.remove(),350);},2000);
 }
 
-// 칭호 — 탐정력만으로
+// 칭호 — 탐정력(정확) × 신중력(과정) 두 축 조합
 function getTitle(){
-  const d=STAT.det;
-  if(d>=90) return {emoji:'🏅',name:'완벽한 탐정',desc:'모든 문장을 한 번에 정확하게 판단했어요. 출처 확인의 달인이에요!'};
-  if(d>=70) return {emoji:'🔍',name:'베테랑 탐정',desc:'대부분의 문장을 잘 판단했어요. 조금만 더 꼼꼼히 읽으면 완벽해요!'};
-  if(d>=40) return {emoji:'🕵️',name:'성장하는 탐정',desc:'잘 하고 있어요! 출처 카드를 좀 더 꼼꼼히 읽으면 탐정력이 올라갈 거예요.'};
-  return {emoji:'🌱',name:'탐정 견습생',desc:'출처 확인이 처음이라 어려웠죠? 다음엔 카드를 먼저 열어보고 천천히 비교해봐요!'};
+  const d=STAT.det, c=careCount();
+  if(d>=80 && c>=4) return {emoji:'🏅',name:'명탐정',desc:'정확하게 판단하고, 출처도 끝까지 꼼꼼히 확인했어요. 최고의 AI 탐정이에요!'};
+  if(d>=80 && c<4)  return {emoji:'🔍',name:'정확한 탐정',desc:'판단이 정확해요! 출처를 한 번 더 비교하고 신중하게 확인하면 명탐정이 될 거예요.'};
+  if(d<80 && c>=4)  return {emoji:'🧭',name:'신중한 탐정',desc:'몇 개는 헷갈렸지만 출처를 끝까지 확인하는 태도가 훌륭해요. 그게 진짜 탐정의 힘이에요!'};
+  if(d>=40)         return {emoji:'🕵️',name:'성장하는 탐정',desc:'잘 하고 있어요! 출처 카드를 천천히 비교하면 탐정력도 신중력도 함께 올라가요.'};
+  return {emoji:'🌱',name:'탐정 견습생',desc:'출처 확인이 처음이라 어려웠죠? 다음엔 출처 글을 먼저 열어 천천히 비교해봐요!'};
 }
 
 // ── 상태 ──
@@ -921,41 +980,34 @@ function goHunt(){
   const bl=qs('#srcBadgeList');if(bl)bl.style.display='block';
   const sc=qs('#sideCard');if(sc)sc.style.display='block';
   qs('#statBar').classList.add('show');
+  updateStatBar();
   showSt(1);renderSent(0);
 }
 
-function clickHL(sid){
-  if(!qs('#aiPanel').classList.contains('hunt'))return;
-  if(S.answers[sid])return;
-  renderSent(ORDER.indexOf(sid));
-}
+function clickHL(sid){} // 순차 방식 — 클릭 탐색 없음
 
-// 각 문장의 핵심 출처 카드 인덱스 → SENTS[sid].srcCards[correctCard] 재활용
-// 드롭다운 현재 열린 sid
 let srcOpenSid=null;
 
 function openSrcTag(sid){
-  // hunt 모드 아닐 때 무시
   if(!qs('#aiPanel').classList.contains('hunt'))return;
+  if(sid!==ORDER[S.curIdx]){
+    toast(`지금은 ${SENTS[ORDER[S.curIdx]].num} 문장 차례예요 — 그 문장의 출처 태그를 눌러봐요!`);
+    return;
+  }
   const s=SENTS[sid];
   const card=s.srcCards[s.correctCard];
   const dd=qs('#srcDropdown');
-
-  // 같은 태그 다시 누르면 닫기
   if(srcOpenSid===sid&&dd.classList.contains('open')){closeSrcDropdown();return;}
-
   srcOpenSid=sid;
   qs('#srcDropdownTag').innerHTML=`<span class="src-bdg ${card.tagCls}" style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;">${card.tag}</span>`;
   qs('#srcDropdownQuote').textContent=card.quote;
-
-  // 이미 확인한 적 있으면 버튼 비활성
-  const confirmed=S.srcConfirmed&&S.srcConfirmed[sid];
+  const confirmed=S.srcConfirmed[sid];
   const btn=qs('#srcConfirmBtn');
   btn.disabled=confirmed;
   btn.textContent=confirmed?'✅ 이미 확인했어요':'✅ 출처 글 확인했어요 — 선택지 열기';
-
   dd.classList.add('open');
-  dd.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // 상단 고정 바 아래·하단 패널 위 영역으로 확실히 끌어올려 보여줌
+  setTimeout(()=>dd.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
 
 function closeSrcDropdown(){
@@ -967,82 +1019,60 @@ function confirmSrc(){
   if(!srcOpenSid)return;
   const sid=srcOpenSid;
   S.srcConfirmed[sid]=true;
-
-  // 태그 read 처리
+  // 신중력: 출처가 있는 4개 문장(②~⑤)을 모두 확인하면 '출처 탐험가' 배지
+  if(['s2','s3','s4','s5'].every(id=>S.srcConfirmed[id])) earnBadge('src');
   const tag=qs('#srctag-'+sid);
   if(tag)tag.classList.add('read');
-
-  // 드롭다운 확인 버튼 비활성
   qs('#srcConfirmBtn').disabled=true;
   qs('#srcConfirmBtn').textContent='✅ 이미 확인했어요';
   closeSrcDropdown();
-
-  // 현재 활성 문장이 이 sid면 패널에 원문 표시 후 선택지 잠금 해제
-  if(ORDER[S.curIdx]===sid) showSrcAndUnlock(sid);
+  if(ORDER[S.curIdx]===sid)showSrcAndUnlock(sid);
 }
 
 function showSrcAndUnlock(sid){
   const s=SENTS[sid];
   const card=s.srcCards[s.correctCard];
-
-  // 안내박스를 원문 표시 박스로 교체
   const guideEl=qs('#guideBox'+sid);
   if(guideEl){
-    guideEl.innerHTML=`
-      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px;letter-spacing:.3px;">📄 확인한 출처 글</div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-        <span class="src-bdg ${card.tagCls}" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;">${card.tag}</span>
-        <span style="font-size:11px;color:var(--muted);">출처 내용</span>
-      </div>
-      <div style="font-size:13px;line-height:1.8;color:var(--ink-soft);font-style:italic;background:#fff;border-radius:8px;padding:10px 12px;border:1px solid var(--blue-mid);">${card.quote}</div>
-      <div style="margin-top:8px;font-size:12px;color:var(--trust);font-weight:800;">✅ 원문을 확인했어요! 아래 선택지를 골라봐요 ↓</div>`;
     guideEl.style.cssText='background:var(--blue-soft);border:1.5px solid var(--trust);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;';
+    guideEl.innerHTML=`
+      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px;">📄 확인한 출처 글</div>
+      <div style="margin-bottom:8px;"><span class="src-bdg ${card.tagCls}" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;">${card.tag}</span></div>
+      <div style="font-size:13px;line-height:1.8;color:var(--ink-soft);font-style:italic;background:#fff;border-radius:8px;padding:10px 12px;border:1px solid var(--blue-mid);">${card.quote}</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--trust);font-weight:800;">✅ 출처 글을 확인했어요! 아래 선택지를 골라봐요 ↓</div>`;
   }
-
-  // 잠금 해제
   const lockEl=qs('#choiceLock'+sid);
   const gridEl=qs('#choiceGrid'+sid);
   if(lockEl)lockEl.style.display='none';
-  if(gridEl){
-    gridEl.style.display='grid';
-    // 부드럽게 스크롤
-    setTimeout(()=>gridEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
-  }
-}
-
-function unlockChoices(sid){
-  // 이미 확인한 상태로 renderSent 재진입 시 호출 — 원문도 함께 표시
-  showSrcAndUnlock(sid);
+  if(gridEl){gridEl.style.display='grid';setTimeout(()=>gridEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);}
 }
 
 function renderSent(idx){
-  const sid=ORDER[idx];const s=SENTS[sid];
+  const sid=ORDER[idx];
+  const s=SENTS[sid];
   S.curIdx=idx;
+
+  // 하이라이트 갱신
   ORDER.forEach((id,i)=>{
-    qs('#hl-'+id).classList.toggle('active',i===idx);
-    qs('#hl-'+id).classList.toggle('done',!!S.answers[id]);
+    const el=qs('#hl-'+id);if(!el)return;
+    el.classList.toggle('active',i===idx);
+    el.classList.toggle('done',!!S.answers[id]);
   });
   qs('#st1ttl').textContent=`${s.num} 문장 살펴보기 (${idx+1}/${ORDER.length})`;
   qs('#sentBox').innerHTML=`AI 문장: <strong>"${s.text}"</strong>`;
 
+  // 패널 초기화
   const area=qs('#actArea');area.innerHTML='';
   qs('#fb1').className='fb';qs('#fb1').innerHTML='';
   qs('#hintBox').className='hint-box';
   qs('#fixArea').style.display='none';qs('#fixArea').innerHTML='';
   qs('#nextRow').style.display='none';
-  // 이전 판정 UI 제거 (문장 전환 시 누적 방지)
-  const prevVp=qs('#actArea')?.querySelector('.verdict-pick');
-  if(prevVp)prevVp.remove();
-  const oldVp=document.querySelector('.verdict-pick');
-  if(oldVp)oldVp.remove();
+  document.querySelectorAll('.verdict-pick').forEach(el=>el.remove());
   closeSrcDropdown();
 
-  // ──────────────────────────────────────────
-  // ① 출처 없음 — 전용 안내 + 선택지 바로 노출
-  // ──────────────────────────────────────────
+  // ① 출처 없음 전용
   if(sid==='s1'){
-    const noSrcBox=document.createElement('div');
-    noSrcBox.innerHTML=`
+    area.innerHTML=`
       <div style="background:#fee2e2;border:2px solid #fca5a5;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:900;color:#991b1b;margin-bottom:6px;">⚠️ 이 문장에는 출처 태그가 없어요!</div>
         <div style="font-size:13px;color:#7f1d1d;line-height:1.7;">
@@ -1050,32 +1080,25 @@ function renderSent(idx){
           이 문장에는 그런 태그가 없어요. AI가 이 내용을 어디서 가져왔는지 밝히지 않은 거예요.<br>
           출처가 없으면 정보가 사실인지 확인할 방법이 없어요.
         </div>
-      </div>`;
-    area.appendChild(noSrcBox);
-
-    // ① 선택지 — 바로 노출 (출처 확인 잠금 불필요)
-    const qBox=document.createElement('div');
-    qBox.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--ink-soft);margin-bottom:7px;">🤔 ${s.question}</div>`;
-    const cg=document.createElement('div');cg.className='choice-grid';cg.id='choiceGrid'+sid;
+      </div>
+      <div style="font-size:13px;font-weight:800;color:var(--ink-soft);margin-bottom:7px;">🤔 ${s.question}</div>
+      <div class="choice-grid" id="choiceGrid${sid}"></div>`;
     s.choices.forEach(ch=>{
-      const btn=document.createElement('button');btn.className='choice-btn';btn.dataset.cid=ch.id;
-      btn.textContent=ch.txt;btn.onclick=()=>chooseAct(sid,ch,btn,cg,s,false);
-      cg.appendChild(btn);
+      const b=document.createElement('button');b.className='choice-btn';b.dataset.cid=ch.id;
+      b.textContent=ch.txt;b.onclick=()=>chooseAct(sid,ch,b,qs('#choiceGrid'+sid),s,false);
+      qs('#choiceGrid'+sid).appendChild(b);
     });
-    qBox.appendChild(cg);area.appendChild(qBox);
     setTimeout(()=>qs('#hl-'+sid).scrollIntoView({behavior:'smooth',block:'center'}),80);
     return;
   }
 
-  // ──────────────────────────────────────────
-  // ②~⑤ 출처 태그 안내 + 선택지 잠금
-  // ──────────────────────────────────────────
+  // ②~⑤ 출처 확인 후 선택지
   const card=s.srcCards[s.correctCard];
   const guideBox=document.createElement('div');
   guideBox.id='guideBox'+sid;
   guideBox.style.cssText='background:var(--blue-soft);border:1.5px solid var(--blue-mid);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;';
   guideBox.innerHTML=`
-    <div style="font-size:13px;font-weight:900;color:var(--brand);margin-bottom:8px;">📌 출처 원문을 먼저 읽어봐요!</div>
+    <div style="font-size:13px;font-weight:900;color:var(--brand);margin-bottom:8px;">📌 출처 글을 먼저 읽어봐요!</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);">
         <span style="background:var(--brand);color:#fff;font-size:11px;font-weight:900;padding:2px 7px;border-radius:999px;flex-shrink:0;">1단계</span>
@@ -1083,7 +1106,7 @@ function renderSent(idx){
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);">
         <span style="background:var(--muted);color:#fff;font-size:11px;font-weight:900;padding:2px 7px;border-radius:999px;flex-shrink:0;">2단계</span>
-        출처 글을 읽고 <strong>✅ 원문 확인했어요</strong> 버튼을 눌러요
+        출처 글을 읽고 <strong>✅ 출처 글 확인했어요</strong> 버튼을 눌러요
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft);">
         <span style="background:var(--muted);color:#fff;font-size:11px;font-weight:900;padding:2px 7px;border-radius:999px;flex-shrink:0;">3단계</span>
@@ -1092,266 +1115,150 @@ function renderSent(idx){
     </div>`;
   area.appendChild(guideBox);
 
-  // 선택지 — 잠금 상태로 렌더
   const qBox=document.createElement('div');qBox.style.marginTop='4px';
   qBox.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--ink-soft);margin-bottom:7px;">🤔 ${s.question}</div>`;
-
-  // 잠금 UI
-  const lockEl=document.createElement('div');
-  lockEl.className='choice-locked';lockEl.id='choiceLock'+sid;
-  lockEl.innerHTML=`<span>🔒</span>출처 출처 글을 확인하면 선택지가 열려요`;
-
-  // 선택지 그리드 (처음엔 숨김)
-  const cg=document.createElement('div');
-  cg.className='choice-grid';cg.id='choiceGrid'+sid;
-  cg.style.display='none'; // 잠금
+  const lockEl=document.createElement('div');lockEl.className='choice-locked';lockEl.id='choiceLock'+sid;
+  lockEl.innerHTML='<span>🔒</span>출처 글을 확인하면 선택지가 열려요';
+  const cg=document.createElement('div');cg.className='choice-grid';cg.id='choiceGrid'+sid;cg.style.display='none';
   s.choices.forEach(ch=>{
-    const btn=document.createElement('button');btn.className='choice-btn';btn.dataset.cid=ch.id;
-    btn.textContent=ch.txt;btn.onclick=()=>chooseAct(sid,ch,btn,cg,s,false);
-    cg.appendChild(btn);
+    const b=document.createElement('button');b.className='choice-btn';b.dataset.cid=ch.id;
+    b.textContent=ch.txt;b.onclick=()=>chooseAct(sid,ch,b,cg,s,false);cg.appendChild(b);
   });
-
   qBox.appendChild(lockEl);qBox.appendChild(cg);area.appendChild(qBox);
-
-  // 이미 확인했으면 즉시 잠금 해제
-  if(S.srcConfirmed&&S.srcConfirmed[sid]) unlockChoices(sid);
-
+  if(S.srcConfirmed[sid])showSrcAndUnlock(sid);
   setTimeout(()=>qs('#hl-'+sid).scrollIntoView({behavior:'smooth',block:'center'}),80);
 }
 
 function chooseAct(sid,ch,btn,grid,s,isRetry){
   if(S.answers[sid]&&!isRetry)return;
-  grid.querySelectorAll('.choice-btn').forEach(b=>{b.classList.remove('sel','correct','wrong');b.disabled=true;});
+  grid.querySelectorAll('.choice-btn').forEach(b=>{b.disabled=true;b.classList.remove('sel','correct','wrong');});
   btn.classList.add(ch.correct?'correct':'wrong');
-
+  S.choiceTxt[sid]=ch.txt;
+  if(!isRetry&&!ch.correct)S.firstWrongTxt[sid]=ch.txt;
   if(ch.correct){
     S.answers[sid]=ch.id;
-    S.choiceTxt[sid]=ch.txt;
-    gainStat(isRetry?10:20, isRetry?'🔍 탐정력 +10 (재도전 성공!)':'🔍 탐정력 +20');
+    gainStat(DET_PER,'🔍 +'+DET_PER+' 정확한 판단!');
+    // 신중력: 틀린 뒤 다시 읽고 스스로 바로잡았으면 '다시 생각러' 배지
+    if(isRetry) earnBadge('retry');
     showFb(sid,s);
-    qs('#hl-'+sid).classList.add('done');qs('#hl-'+sid).classList.remove('active');
-    qs('#hintBox').className='hint-box';
+  } else if(!isRetry){
+    S.retried[sid]=true;
+    const wfb=s.wrongFb&&s.wrongFb[ch.id]?s.wrongFb[ch.id]:'출처 글을 다시 꼼꼼히 읽어봐요.';
+    qs('#hintTxt').innerHTML=`<span style="color:#9a3412">${wfb}</span><br><br><span style="color:#78350f">💡 ${s.hint}</span>`;
+    qs('#hintBox').className='hint-box show';
+    qs('#retryBtn').onclick=()=>retryChoice(sid); // 힌트 박스 안의 단일 버튼에 현재 문장 연결
+    qs('#fixArea').style.display='none';qs('#fixArea').innerHTML='';
   } else {
-    if(!isRetry) S.firstWrongTxt[sid]=ch.txt; // 첫 오답 텍스트 별도 보관
-    S.choiceTxt[sid]=ch.txt; // 오답도 기록 (재도전이면 두 번째 선택으로 갱신)
-    if(!isRetry){
-      const wfb=s.wrongFb&&s.wrongFb[ch.id]?s.wrongFb[ch.id]:'출처 원문을 다시 꼼꼼히 읽어봐요.';
-      qs('#hintTxt').innerHTML=`<span style="color:#9a3412">${wfb}</span><br><br><span style="color:#78350f">💡 ${s.hint}</span>`;
-      qs('#hintBox').className='hint-box show';
-    } else {
-      S.answers[sid]='wrong';
-      // 2번째 오답 → 정답 초록으로 알려줌
-      grid.querySelectorAll('.choice-btn').forEach(b=>{
-        if(s.choices.find(x=>x.id===b.dataset.cid&&x.correct)) b.classList.add('correct');
-      });
-      showFb(sid,s);
-      qs('#hl-'+sid).classList.add('done');qs('#hl-'+sid).classList.remove('active');
-      qs('#hintBox').className='hint-box';
-    }
+    S.answers[sid]='wrong';
+    grid.querySelectorAll('.choice-btn').forEach(b=>{
+      if(s.choices.find(x=>x.id===b.dataset.cid&&x.correct))b.classList.add('correct');
+    });
+    qs('#hintBox').className='hint-box';
+    showFb(sid,s);
   }
 }
 
-function retryChoice(){
-  const sid=ORDER[S.curIdx];const s=SENTS[sid];
-  S.retried[sid]=true;
-  const grid=qs('#choiceGrid'+sid);
-  grid.querySelectorAll('.choice-btn').forEach(b=>{b.classList.remove('sel','correct','wrong');b.disabled=false;});
+function retryChoice(sid){
+  const s=SENTS[sid];const grid=qs('#choiceGrid'+sid);
   grid.querySelectorAll('.choice-btn').forEach(b=>{
+    b.disabled=false;b.classList.remove('correct','wrong');
     const ch=s.choices.find(x=>x.id===b.dataset.cid);
     b.onclick=()=>chooseAct(sid,ch,b,grid,s,true);
   });
   qs('#hintBox').className='hint-box';
+  qs('#fixArea').style.display='none';qs('#fixArea').innerHTML='';
 }
 
 function showFb(sid,s){
   const fb=qs('#fb1');fb.className='fb show '+s.fbType;
   fb.innerHTML=`<div class="fbt">${s.fbTitle}</div>${s.fbBody}<div class="fbk">💡 핵심: ${s.fbKey}</div>`;
   if(s.hasFix){
-    const fa=qs('#fixArea');fa.style.display='block';
-    fa.innerHTML=`<div class="fix-box"><div class="fix-box-ttl">✏️ AI 문장 수리하기</div><div class="fix-original">원래 AI 문장: "${s.fixOriginal}"</div><p style="font-size:12px;color:#92400e;margin-bottom:6px;">${s.fixHint}</p><textarea class="fix-ta" id="fixTa" rows="2" maxlength="100" placeholder="더 정확한 표현으로 고쳐봐요..."></textarea></div>`;
+    qs('#fixArea').style.display='block';
+    qs('#fixArea').innerHTML=`<div class="fix-box"><div class="fix-box-ttl">✏️ AI 문장 수리하기</div><div class="fix-original">원래 AI 문장: "${s.fixOriginal}"</div><p style="font-size:12px;color:#92400e;margin-bottom:6px;">${s.fixHint}</p><textarea class="fix-ta" id="fixTa" rows="2" maxlength="100" placeholder="더 정확한 표현으로 고쳐봐요..."></textarea></div>`;
   }
-
-  // 판정 선택 UI — 선택지 정답 여부와 무관하게 항상 표시
-  const vpWrap=document.createElement('div');
-  vpWrap.className='verdict-pick';vpWrap.id='vp-'+sid;
-  const allowedMap={
-    s1:['doubt'],
-    s2:['doubt'],
-    s3:['trust'],
-    s4:['hold','doubt'],
-    s5:['hold','doubt'],
-  };
-  const allowed=allowedMap[sid]||['trust','hold','doubt'];
+  // 판정 UI
+  const vpWrap=document.createElement('div');vpWrap.className='verdict-pick';vpWrap.id='vp-'+sid;
   const vpLabels={trust:{e:'✅',l:'신뢰'},hold:{e:'🤔',l:'보류'},doubt:{e:'⚠️',l:'의심'}};
-
   vpWrap.innerHTML=`
     <div class="verdict-pick-ttl">⚖️ 이 문장, 어떻게 판정할까요?</div>
     <div class="verdict-pick-btns">
-      ${['trust','hold','doubt'].map(v=>`
-        <button class="vp-btn ${v} active" onclick="pickVerdict('${sid}','${v}',this)">
-          ${vpLabels[v].e} ${vpLabels[v].l}
-        </button>`).join('')}
+      ${['trust','hold','doubt'].map(v=>`<button class="vp-btn ${v} active" onclick="pickVerdict('${sid}','${v}',this)">${vpLabels[v].e} ${vpLabels[v].l}</button>`).join('')}
     </div>
     <div class="verdict-pick-fb" id="vpfb-${sid}"></div>`;
-  qs('#fb1').after(vpWrap);
-
-  const isLast=S.curIdx===ORDER.length-1;
-  qs('#nextBtn').textContent=isLast?'출처 확인 완료 — 점수 다시 매기기 →':'다음 문장 살펴보기 →';
-  qs('#nextRow').style.display='none'; // 판정 선택 전까지 숨김
+  fb.after(vpWrap);
+  qs('#nextRow').style.display='none';
 }
 
 function pickVerdict(sid,v,btn){
   S.sentVerdicts[sid]=v;
-
+  // 신중력: 애매한 ④⑤를 모두 '보류'로 정확히 판정하면 '신중한 판정관' 배지
+  if(S.sentVerdicts.s4==='hold' && S.sentVerdicts.s5==='hold') earnBadge('hold');
   const wrap=qs('#vp-'+sid);
-  wrap.querySelectorAll('.vp-btn').forEach(b=>{
-    b.classList.remove('picked');
-    b.style.pointerEvents='none';
-  });
+  wrap.querySelectorAll('.vp-btn').forEach(b=>{b.classList.remove('picked');b.style.pointerEvents='none';});
   btn.classList.add('picked');
 
-  // 추천 판정 및 피드백 데이터
-  const recMap={s1:'doubt',s2:'doubt',s3:'trust',s4:'hold',s5:'hold'};
-  const rec=recMap[sid];
-  const isRec=(v===rec);
-
-  const fbData={
-    s1:{
-      doubt:{txt:'출처가 없는 정보는 내용이 맞는지 확인할 방법이 없어요. 좋은 판단이에요!',cls:'ok'},
-      hold:{txt:'출처가 아예 없을 때는 내용이 맞는지 확인할 방법 자체가 없어요. 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'doubt',
-            retryTxt:'출처가 없을 때는 ⚠️ 의심이 가장 어울려요. 어디서 온 정보인지 알 수 없으면 사실 여부를 확인할 방법이 없거든요.',retryCls:'wrong'},
-      trust:{txt:'어디서 온 정보인지 알 수 없을 때 그냥 믿는 건 위험할 수 있어요. 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'doubt',
-             retryTxt:'출처가 없을 때는 ⚠️ 의심이 가장 어울려요. 내용이 맞는지 확인할 방법 자체가 없으니까요.',retryCls:'wrong'},
-    },
-    s2:{
-      doubt:{txt:'출처 글의 내용과 AI 문장이 달라졌어요. 잘 찾아냈어요!',cls:'ok'},
-      hold:{txt:'출처 글과 AI 문장을 다시 비교해봐요. 달라진 부분이 보이나요? 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'doubt',
-            retryTxt:'이럴 때는 ⚠️ 의심이 좋아요. 출처 글 내용을 AI가 다르게 바꿨을 때는 그 정보를 의심해봐야 해요.',retryCls:'wrong'},
-      trust:{txt:'출처 글에서 뭐라고 했는지 다시 읽어봐요. AI 문장과 다른 부분이 있나요? 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'doubt',
-             retryTxt:'이럴 때는 ⚠️ 의심이 좋아요. 뉴스는 "비슷한 수준"이라고 했는데 AI가 "훨씬 많다"로 바꿨어요. 내용이 달라지면 의심이 맞아요.',retryCls:'wrong'},
-    },
-    s3:{
-      trust:{txt:'출처가 명확하고 실험으로 확인된 내용이에요. 좋은 판단이에요!',cls:'ok'},
-      hold:{txt:'출처 글에서 이 내용이 어떻게 확인됐는지 다시 읽어봐요. 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'trust',
-            retryTxt:'이럴 때는 ✅ 신뢰가 좋아요. 국립기관이 직접 실험으로 확인한 내용은 출처가 명확하고 믿을 수 있어요.',retryCls:'wrong'},
-      doubt:{txt:'국립기관에서 직접 실험으로 확인한 내용이에요. 출처 글을 다시 읽어볼까요? 🤔',cls:'wrong',rec:'trust',
-             retryTxt:'이럴 때는 ✅ 신뢰가 좋아요. 공신력 있는 기관이 실험으로 직접 확인한 내용은 신뢰할 수 있어요.',retryCls:'wrong'},
-    },
-    s4:{
-      hold:{txt:'피부 색이 바뀐다는 건 관찰된 사실이고, 꿈을 꾼다는 건 아직 논쟁 중이에요. 잘 구분했어요!',cls:'ok'},
-      doubt:{txt:'피부 색이 바뀐다는 건 영상으로 확인된 사실이에요. 확실하지 않은 건 어느 부분인지 다시 찾아볼까요? 🤔',cls:'alt',rec:'hold',
-             retryTxt:'이럴 때는 🤔 보류가 좋아요. 사실인 부분도 있고 아직 불확실한 부분도 섞여 있을 때는 보류로 두는 게 현명해요.',retryCls:'alt'},
-      trust:{txt:'출처 글에서 과학자들이 아직 확실하지 않다고 한 부분이 있어요. 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'hold',
-             retryTxt:'이럴 때는 🤔 보류가 좋아요. "꿈을 꾼다"는 부분은 아직 과학적으로 증명되지 않았어요. 확실하지 않은 내용이 섞이면 보류가 맞아요.',retryCls:'wrong'},
-    },
-    s5:{
-      hold:{txt:'"조절한다"와 "결정한다"는 달라요. 표현의 차이를 잘 발견했어요!',cls:'ok'},
-      doubt:{txt:'출처 글과 AI 문장에서 달라진 표현이 뭔지 다시 찾아봐요. 다시 한번 생각해볼까요? 🤔',cls:'alt',rec:'hold',
-             retryTxt:'이럴 때는 🤔 보류가 좋아요. 출처는 있는데 표현만 살짝 과장됐을 때는 보류로 두는 게 맞아요. 완전히 틀린 건 아니니까요.',retryCls:'alt'},
-      trust:{txt:'"조절한다"와 "결정한다"는 어떻게 다를까요? 다시 한번 생각해볼까요? 🤔',cls:'wrong',rec:'hold',
-             retryTxt:'이럴 때는 🤔 보류가 좋아요. "결정한다"는 표현이 과장됐어요. 출처는 있지만 표현이 바뀌면 완전히 신뢰하기 어려워요.',retryCls:'wrong'},
-    },
+  const FD={
+    s1:{doubt:{t:'출처가 없는 정보는 내용이 맞는지 확인할 방법이 없어요. 좋은 판단이에요!',c:'ok'},
+        hold:{t:'출처가 아예 없을 때는 내용이 맞는지 확인할 방법 자체가 없어요. 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'출처가 없을 때는 ⚠️ 의심이 가장 어울려요. 어디서 온 정보인지 알 수 없으면 사실 여부를 확인할 방법이 없거든요.',rc:'wrong'},
+        trust:{t:'어디서 온 정보인지 알 수 없을 때 그냥 믿는 건 위험할 수 있어요. 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'출처가 없을 때는 ⚠️ 의심이 가장 어울려요. 내용이 맞는지 확인할 방법 자체가 없으니까요.',rc:'wrong'}},
+    s2:{doubt:{t:'출처 글의 내용과 AI 문장이 달라졌어요. 잘 찾아냈어요!',c:'ok'},
+        hold:{t:'출처 글과 AI 문장을 다시 비교해봐요. 달라진 부분이 보이나요? 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 ⚠️ 의심이 좋아요. 출처 글 내용을 AI가 다르게 바꿨을 때는 의심해봐야 해요.',rc:'wrong'},
+        trust:{t:'출처 글에서 뭐라고 했는지 다시 읽어봐요. AI 문장과 다른 부분이 있나요? 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 ⚠️ 의심이 좋아요. 뉴스는 "비슷한 수준"이라고 했는데 AI가 "훨씬 많다"로 바꿨어요.',rc:'wrong'}},
+    s3:{trust:{t:'출처가 명확하고 실험으로 확인된 내용이에요. 좋은 판단이에요!',c:'ok'},
+        hold:{t:'출처 글에서 이 내용이 어떻게 확인됐는지 다시 읽어봐요. 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 ✅ 신뢰가 좋아요. 국립기관이 직접 실험으로 확인한 내용은 믿을 수 있어요.',rc:'wrong'},
+        doubt:{t:'국립기관에서 직접 실험으로 확인한 내용이에요. 출처 글을 다시 읽어볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 ✅ 신뢰가 좋아요. 공신력 있는 기관이 실험으로 직접 확인한 내용은 신뢰할 수 있어요.',rc:'wrong'}},
+    s4:{hold:{t:'피부 색이 바뀐다는 건 관찰된 사실이고, 꿈을 꾼다는 건 아직 논쟁 중이에요. 잘 구분했어요!',c:'ok'},
+        doubt:{t:'피부 색이 바뀐다는 건 영상으로 확인된 사실이에요. 확실하지 않은 건 어느 부분인지 다시 찾아볼까요? 🤔',c:'alt',r:true,rt:'이럴 때는 🤔 보류가 좋아요. 사실인 부분도 있고 불확실한 부분도 섞여 있을 때는 보류가 현명해요.',rc:'alt'},
+        trust:{t:'출처 글에서 과학자들이 아직 확실하지 않다고 한 부분이 있어요. 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 🤔 보류가 좋아요. "꿈을 꾼다"는 부분은 아직 과학적으로 증명되지 않았어요.',rc:'wrong'}},
+    s5:{hold:{t:'"조절한다"와 "결정한다"는 달라요. 표현의 차이를 잘 발견했어요!',c:'ok'},
+        doubt:{t:'출처 글과 AI 문장에서 달라진 표현이 뭔지 다시 찾아봐요. 다시 한번 생각해볼까요? 🤔',c:'alt',r:true,rt:'이럴 때는 🤔 보류가 좋아요. 출처는 있는데 표현만 살짝 과장됐을 때는 보류가 맞아요.',rc:'alt'},
+        trust:{t:'"조절한다"와 "결정한다"는 어떻게 다를까요? 다시 한번 생각해볼까요? 🤔',c:'wrong',r:true,rt:'이럴 때는 🤔 보류가 좋아요. "결정한다"는 표현이 과장됐어요. 표현이 바뀌면 완전히 신뢰하기 어려워요.',rc:'wrong'}},
   };
 
-  const fb=fbData[sid]?.[v]||{txt:'판단했어요!',cls:'ok'};
+  const fb=FD[sid]?.[v]||{t:'판단했어요!',c:'ok'};
   const fbEl=qs('#vpfb-'+sid);
-  const isRetry=S.verdictRetried&&S.verdictRetried[sid];
+  const isRetry=!!(S.verdictRetried&&S.verdictRetried[sid]);
 
-  // 두 번째 선택(재선택 후) — 결과 알려주기
   if(isRetry){
-    const retryTxt=fb.retryTxt||fb.txt;
-    const retryCls=fb.retryCls||fb.cls;
-    fbEl.className=`verdict-pick-fb show ${retryCls}`;
-    fbEl.innerHTML=`<div>${retryTxt}</div>`;
-    qs('#nextRow').style.display='flex';
-    updateNextBtn();
-    return;
+    fbEl.className=`verdict-pick-fb show ${fb.rc||fb.c}`;
+    fbEl.innerHTML=`<div>${fb.rt||fb.t}</div>`;
+  } else if(fb.r){
+    fbEl.className=`verdict-pick-fb show ${fb.c}`;
+    fbEl.innerHTML=`<div style="margin-bottom:8px;">${fb.t}</div>
+      <button onclick="repickVerdict('${sid}')" style="font-size:11px;font-weight:800;background:#fff;border:1px solid rgba(0,0,0,.18);border-radius:999px;padding:4px 12px;cursor:pointer;color:var(--brand);">한 번 더 생각해볼게요 →</button>`;
+  } else {
+    fbEl.className=`verdict-pick-fb show ${fb.c}`;
+    fbEl.innerHTML=`<div>${fb.t}</div>`;
   }
 
-  // 첫 번째 선택 — 추천이 다르면 재선택 안내
-  const showRepick=fb.rec;
-  const recLabels={trust:'✅ 신뢰',hold:'🤔 보류',doubt:'⚠️ 의심'};
-
-  fbEl.className=`verdict-pick-fb show ${fb.cls}`;
-  fbEl.innerHTML=`
-    <div style="margin-bottom:${showRepick?'8px':'0'};">${fb.txt}</div>
-    ${showRepick?`
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <button onclick="repickVerdict('${sid}')"
-        style="font-size:11px;font-weight:800;background:#fff;border:1px solid rgba(0,0,0,.18);
-               border-radius:999px;padding:4px 12px;cursor:pointer;color:var(--brand);">
-        한 번 더 생각해볼게요 →
-      </button>
-    </div>`:''}`;
-
-  // 항상 nextRow 표시 후 버튼 텍스트 갱신
   qs('#nextRow').style.display='flex';
-  updateNextBtn();
+  const isLast=(S.curIdx===ORDER.length-1);
+  qs('#nextBtn').textContent=isLast?'출처 확인 완료 — 점수 다시 매기기 →':'다음 문장 살펴보기 →';
+  if(isLast)qs('#nextBtn').style.background='var(--trust)';
 }
 
 function repickVerdict(sid){
-  if(!S.verdictRetried) S.verdictRetried={};
+  if(!S.verdictRetried)S.verdictRetried={};
   S.verdictRetried[sid]=true;
   delete S.sentVerdicts[sid];
-  const wrap=qs('#vp-'+sid);
-  wrap.querySelectorAll('.vp-btn').forEach(b=>{
-    b.classList.remove('picked');
-    b.style.pointerEvents='auto';
-  });
-  const fbEl=qs('#vpfb-'+sid);
-  fbEl.className='verdict-pick-fb';
-  fbEl.innerHTML='';
+  qs('#vp-'+sid).querySelectorAll('.vp-btn').forEach(b=>{b.classList.remove('picked');b.style.pointerEvents='auto';});
+  const fbEl=qs('#vpfb-'+sid);fbEl.className='verdict-pick-fb';fbEl.innerHTML='';
   qs('#nextRow').style.display='none';
 }
 
-function updateNextBtn(){
-  const sid=ORDER[S.curIdx];
-  const allDone=ORDER.every(id=>S.sentVerdicts[id]);
-  const btn=qs('#nextBtn');
-  if(!btn)return;
-
-  if(allDone){
-    // 모든 문장 판정 완료 → 다음 단계 버튼
-    btn.textContent='출처 확인 완료 — 점수 다시 매기기 →';
-    btn.style.background='var(--trust)';
-    btn.style.cursor='pointer';
-  } else {
-    // 아직 안 한 문장 있음 → 남은 개수 표시
-    const remaining=ORDER.filter(id=>!S.sentVerdicts[id]);
-    const isCurrentDone=S.sentVerdicts[sid];
-    if(isCurrentDone&&remaining.length>0){
-      btn.textContent=`다음 문장 살펴보기 → (${remaining.length}개 남음)`;
-    } else {
-      btn.textContent='다음 문장 살펴보기 →';
-    }
-    btn.style.background='';
-    btn.style.cursor='pointer';
-  }
-}
-
 function nextSent(){
-  if(S.curIdx===ORDER.indexOf('s2')){const ta=qs('#fixTa');if(ta)S.fixText=ta.value.trim();}
   const sid=ORDER[S.curIdx];
   if(!S.sentVerdicts[sid]){toast('이 문장을 신뢰 / 보류 / 의심 중 하나로 판정해봐요!');return;}
-
-  const allDone=ORDER.every(id=>S.sentVerdicts[id]);
-
-  if(allDone){
-    // 모든 문장 완료 → 다음 단계
-    qs('#sc2').value=S.sc0;qs('#sb2').textContent=S.sc0;S.sc2=S.sc0;qs('#echo0').textContent=S.sc0;showSt(2);
-    return;
-  }
-
-  // 아직 안 한 문장 → 다음 미완료 문장으로 이동
-  // 현재 인덱스 다음부터 찾고, 없으면 처음부터 찾기
-  const remaining=ORDER.filter(id=>!S.sentVerdicts[id]);
-  const afterCurrent=ORDER.slice(S.curIdx+1).find(id=>!S.sentVerdicts[id]);
-  const nextId=afterCurrent||remaining[0];
-  if(nextId){
-    renderSent(ORDER.indexOf(nextId));
-    setTimeout(()=>qs('#hl-'+nextId).scrollIntoView({behavior:'smooth',block:'center'}),80);
+  const ta=qs('#fixTa');if(ta){S.fixText=ta.value.trim();if(S.fixText) earnBadge('fix');}
+  if(S.curIdx<ORDER.length-1){
+    renderSent(S.curIdx+1);
+  } else {
+    qs('#sc2').value=S.sc0;qs('#sb2').textContent=S.sc0;S.sc2=S.sc0;qs('#echo0').textContent=S.sc0;
+    showSt(2);
   }
 }
+
+
 
 function goVerdict(){
   const r=qs('#ta2').value.trim();
@@ -1403,6 +1310,8 @@ function makeReport(){
 }
 
 function buildReport(){
+  // 신중력: 5문장을 끝까지 확인하고 보고서까지 도달하면 '끝까지 확인' 배지
+  earnBadge('finish');
   const t=getTitle();
   qs('#rptTitle').innerHTML=`
     <div class="title-emoji">${t.emoji}</div>
@@ -1410,7 +1319,20 @@ function buildReport(){
     <div class="title-desc">${t.desc}</div>
     <div class="title-stats">
       <div class="title-stat"><div class="title-stat-lbl">🔍 탐정력</div><div class="title-stat-val">${STAT.det}</div></div>
-    </div>`;
+      <div class="title-stat"><div class="title-stat-lbl">🎖️ 신중력</div><div class="title-stat-val">${careCount()}/5</div></div>
+    </div>
+    <div class="title-badges" id="titleBadges"></div>`;
+  // 신중력 배지 목록 (획득=밝게 / 미획득=흐리게)
+  const tb=qs('#titleBadges');
+  if(tb){
+    Object.keys(BADGES).forEach(id=>{
+      const b=BADGES[id];const e=STAT.care&&STAT.care[id];
+      const sp=document.createElement('span');
+      sp.className='title-badge'+(e?'':' locked');
+      sp.textContent=`${b.emoji} ${b.name}`;
+      tb.appendChild(sp);
+    });
+  }
 
   // 문장별 결과 — 선택지 결과 + 내 판정 함께 표시
   const lmap={trust:'✅ 신뢰',hold:'🤔 보류',doubt:'⚠️ 의심'};
