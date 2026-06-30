@@ -168,6 +168,47 @@ button,input,textarea{font-family:inherit;}
 .src-confirm-btn:hover{background:#3730a3;}
 .src-confirm-btn:disabled{background:var(--trust);cursor:default;}
 
+
+
+/* ── 오른쪽 활동 칸 출처 읽기 패널 ── */
+.src-reader-panel{
+  display:none;
+  margin:8px 0 12px;
+  border:2px solid var(--blue-mid);
+  border-radius:var(--radius);
+  background:linear-gradient(135deg,#eff6ff,#ffffff);
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(79,70,229,.08);
+}
+.src-reader-panel.open{display:block;}
+.src-reader-hd{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 13px;
+  background:var(--blue-soft);
+  border-bottom:1px solid var(--blue-mid);
+}
+.src-reader-title{font-size:13px;font-weight:900;color:var(--brand);display:flex;align-items:center;gap:7px;}
+.src-reader-close{font-size:11px;color:var(--muted);cursor:pointer;padding:3px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;flex-shrink:0;}
+.src-reader-close:hover{border-color:var(--brand);color:var(--brand);}
+.src-reader-body{padding:12px 14px;}
+.src-reader-guide{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px;line-height:1.5;}
+.src-reader-quote{
+  font-size:13px;line-height:1.85;color:var(--ink-soft);font-style:italic;
+  background:#fff;border:1px solid var(--blue-mid);border-radius:10px;
+  padding:11px 12px;
+  max-height:28vh;overflow-y:auto;
+  white-space:pre-wrap;
+}
+.src-reader-btn{margin-top:10px;width:100%;background:var(--brand);color:#fff;border:0;border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:900;cursor:pointer;}
+.src-reader-btn:hover{background:#3730a3;}
+.src-reader-btn:disabled{background:var(--trust);cursor:default;}
+.src-reader-note{margin-top:8px;font-size:12px;color:var(--trust);font-weight:800;display:none;}
+.src-reader-note.show{display:block;}
+@media(orientation:landscape)and(min-width:800px){
+  .src-reader-panel{margin-top:4px;margin-bottom:14px;}
+  .src-reader-quote{max-height:34vh;font-size:14px;line-height:1.9;}
+}
+
 /* 잠금 상태 선택지 */
 .choice-locked{background:var(--bg);border:1.5px dashed var(--line);border-radius:var(--radius-sm);padding:12px;text-align:center;color:var(--muted);font-size:13px;font-weight:700;margin:10px 0;}
 .choice-locked span{font-size:16px;display:block;margin-bottom:4px;}
@@ -447,7 +488,7 @@ button,input,textarea{font-family:inherit;}
   .print-overlay-inner{max-width:100%!important;}
 }
 </style>
-</head>
+<script type="text/javascript" nonce="7ef93669bf834e39b83b503cdc4" src="//local.adguard.org?ts=1782810614280&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_0000000003b07207866f0879fbe1e016%26fn%3Dindex_right_source.html%26cd%3Dattachment%26ts%3D495226%26p%3Dfs%26cid%3D1%26sig%3Db3862688c575894a7a9d62458059f48d25d20aaf81f1b6ae5e5942704dbbb2c3%26v%3D0&amp;app=msedge.exe&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script></head>
 <body>
 
 <!-- 능력치 바 -->
@@ -607,6 +648,18 @@ button,input,textarea{font-family:inherit;}
   <div id="st1" style="display:none;">
     <div class="st-hd"><span class="st-pill">활동 2</span><span class="st-ttl" id="st1ttl">문장 살펴보기</span><div class="prog" id="pg1"></div></div>
     <div style="background:var(--blue-soft);border-radius:var(--radius-sm);padding:10px 13px;font-size:14px;line-height:1.6;margin-bottom:10px;" id="sentBox"></div>
+    <div class="src-reader-panel" id="srcReaderPanel">
+      <div class="src-reader-hd">
+        <div class="src-reader-title">📄 오른쪽 칸에서 출처 원문 읽기 <span id="srcReaderTag"></span></div>
+        <button class="src-reader-close" onclick="closeSrcDropdown()">닫기 ✕</button>
+      </div>
+      <div class="src-reader-body">
+        <div class="src-reader-guide">AI 문장과 출처 원문이 같은 뜻인지 천천히 비교해봐요.</div>
+        <div class="src-reader-quote" id="srcReaderQuote"></div>
+        <button class="src-reader-btn" id="srcReaderBtn" onclick="confirmSrc()">✅ 출처 글 확인했어요 — 선택지 열기</button>
+        <div class="src-reader-note" id="srcReaderNote">✅ 출처 글을 확인했어요. 아래 선택지를 골라봐요.</div>
+      </div>
+    </div>
     <div id="actArea"></div>
     <div class="hint-box" id="hintBox">
       <div class="hint-box-ttl">💡 힌트</div>
@@ -1011,22 +1064,32 @@ function openSrcTag(sid){
   }
   const s=SENTS[sid];
   const card=s.srcCards[s.correctCard];
-  const dd=qs('#srcDropdown');
-  if(srcOpenSid===sid&&dd.classList.contains('open')){closeSrcDropdown();return;}
+  const reader=qs('#srcReaderPanel');
+  if(srcOpenSid===sid&&reader&&reader.classList.contains('open')){closeSrcDropdown();return;}
   srcOpenSid=sid;
-  qs('#srcDropdownTag').innerHTML=`<span class="src-bdg ${card.tagCls}" style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;">${card.tag}</span>`;
-  qs('#srcDropdownQuote').textContent=card.quote;
+
+  // 기존 AI 답변 아래 드롭다운은 쓰지 않고, 활동 칸의 출처 읽기 패널에 표시해요.
+  const dd=qs('#srcDropdown');
+  if(dd)dd.classList.remove('open');
+
+  qs('#srcReaderTag').innerHTML=`<span class="src-bdg ${card.tagCls}" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:4px;">${card.tag}</span>`;
+  qs('#srcReaderQuote').textContent=card.quote;
   const confirmed=S.srcConfirmed[sid];
-  const btn=qs('#srcConfirmBtn');
+  const btn=qs('#srcReaderBtn');
   btn.disabled=confirmed;
   btn.textContent=confirmed?'✅ 이미 확인했어요':'✅ 출처 글 확인했어요 — 선택지 열기';
-  dd.classList.add('open');
-  // 상단 고정 바 아래·하단 패널 위 영역으로 확실히 끌어올려 보여줌
-  setTimeout(()=>dd.scrollIntoView({behavior:'smooth',block:'start'}),60);
+  qs('#srcReaderNote').classList.toggle('show',!!confirmed);
+  reader.classList.add('open');
+  setTimeout(()=>reader.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
 
 function closeSrcDropdown(){
-  qs('#srcDropdown').classList.remove('open');
+  const dd=qs('#srcDropdown');
+  if(dd)dd.classList.remove('open');
+  const reader=qs('#srcReaderPanel');
+  if(reader)reader.classList.remove('open');
+  const note=qs('#srcReaderNote');
+  if(note)note.classList.remove('show');
   srcOpenSid=null;
 }
 
@@ -1038,9 +1101,12 @@ function confirmSrc(){
   if(['s2','s3','s4','s5'].every(id=>S.srcConfirmed[id])) earnBadge('src');
   const tag=qs('#srctag-'+sid);
   if(tag)tag.classList.add('read');
-  qs('#srcConfirmBtn').disabled=true;
-  qs('#srcConfirmBtn').textContent='✅ 이미 확인했어요';
-  closeSrcDropdown();
+  const btn=qs('#srcReaderBtn');
+  if(btn){btn.disabled=true;btn.textContent='✅ 이미 확인했어요';}
+  const oldBtn=qs('#srcConfirmBtn');
+  if(oldBtn){oldBtn.disabled=true;oldBtn.textContent='✅ 이미 확인했어요';}
+  const note=qs('#srcReaderNote');
+  if(note)note.classList.add('show');
   if(ORDER[S.curIdx]===sid)showSrcAndUnlock(sid);
 }
 
@@ -1049,12 +1115,12 @@ function showSrcAndUnlock(sid){
   const card=s.srcCards[s.correctCard];
   const guideEl=qs('#guideBox'+sid);
   if(guideEl){
-    guideEl.style.cssText='background:var(--blue-soft);border:1.5px solid var(--trust);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;';
+    guideEl.style.cssText='background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:10px;';
     guideEl.innerHTML=`
-      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px;">📄 확인한 출처 글</div>
-      <div style="margin-bottom:8px;"><span class="src-bdg ${card.tagCls}" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;">${card.tag}</span></div>
-      <div style="font-size:13px;line-height:1.8;color:var(--ink-soft);font-style:italic;background:#fff;border-radius:8px;padding:10px 12px;border:1px solid var(--blue-mid);">${card.quote}</div>
-      <div style="margin-top:8px;font-size:12px;color:var(--trust);font-weight:800;">✅ 출처 글을 확인했어요! 아래 선택지를 골라봐요 ↓</div>`;
+      <div style="font-size:13px;font-weight:900;color:var(--trust);margin-bottom:4px;">✅ 출처 글 확인 완료</div>
+      <div style="font-size:12px;color:var(--ink-soft);line-height:1.6;">
+        오른쪽 칸의 <span class="src-bdg ${card.tagCls}" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;margin:0 2px;">${card.tag}</span> 출처 원문과 AI 문장을 비교하면서 아래 선택지를 골라봐요.
+      </div>`;
   }
   const lockEl=qs('#choiceLock'+sid);
   const gridEl=qs('#choiceGrid'+sid);
